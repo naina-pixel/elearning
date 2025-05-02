@@ -52,7 +52,7 @@ include "header.php"
                                     <?php if(isset($_SESSION['name']))
                                     {
                                     ?>
-                                    value= <?php  echo $_SESSION['name'] ?> readonly
+                                    value= "<?php  echo $_SESSION['name'] ?>" readonly
                                     <?php
                                     }?>>
                                 </div>
@@ -64,7 +64,7 @@ include "header.php"
                                     <?php if(isset($_SESSION['email']))
                                     {
                                     ?>
-                                    value= <?php echo $_SESSION['email']; ?> readonly
+                                    value= "<?php echo $_SESSION['email']; ?>" readonly
                                     <?php
                                     }?>>
                                 </div>
@@ -72,13 +72,13 @@ include "header.php"
                             <div class="col-sm-12">
                                 <div class="form-group">
                                     <label>Subject</label>
-                                    <input class="form-control valid" name="subject" id="email" type="text"  placeholder="Enter Subject">
+                                    <input class="form-control valid" name="subject" id="subject" type="text"  placeholder="Enter Subject">
                                 </div>
                             </div>
                             <div class="col-sm-12">
                                 <div class="form-group">
                                     <label>Message</label>
-                                    <textarea class="form-control valid" name="message" id="email"   placeholder="Enter Subject">
+                                    <textarea class="form-control valid" name="message" id="message"   placeholder="Enter Message">
                                 </textarea>
                                 </div>
                             </div>
@@ -94,33 +94,56 @@ include "header.php"
     </section>
     <!-- Contact Area End -->
 </main>
+
 <?php
-if(isset($_POST['submit'])){
-    
-    $name = $_REQUEST['name'];
-    $email = $_REQUEST['email'];
-    $subject =$_REQUEST['subject'];
-    $message = $_REQUEST['message'];
-    
-    
-    include "config.php";
-    
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-    
-    $query = "insert into `contact`(`name`,`email`,`subject`,`message`)values('$name','$email','$subject','$message')";
+require 'PHPMailer/PHPMailer.php';
+require 'PHPMailer/SMTP.php';
+require 'PHPMailer/Exception.php';
 
-    
-    $result = mysqli_query($con,$query);
+if (isset($_POST['submit'])) {
+    // Retrieve form data
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $subject = $_POST['subject'];
+    $message = $_POST['message'];
 
-    if($result>0)
-    {
+    // Send email
+    $mail = new PHPMailer(true);
+
+    try {
+        //Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'nainabarnal@gmail.com';          // 🔁 your Gmail
+        $mail->Password   = 'zxmwkwhkjozaklvj';            // 🔁 app password here
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
+
+        //Recipients
+        $mail->setFrom('nainabarnal@gmail.com', 'Contact Form');
+        $mail->addAddress('nainabarnal@gmail.com');            // 🔁 your destination email
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = "New Contact Message from $name";
+        $mail->Body    = "
+            <h3>Contact Form Submission</h3>
+            <p><strong>Name:</strong> $name</p>
+            <p><strong>Email:</strong> $email</p>
+            <p><strong>Subject:</strong> $subject</p>
+            <p><strong>Message:</strong><br>$message</p>
+        ";
+
+        $mail->send();
         echo "<script>window.location.assign('contact.php?msg=YOUR MESSAGE HAS BEEN SENT')</script>";
-    }
-    else{
-        //echo mysqli_error($con);
-        echo "<script>window.location.assign('contact.php?msg= TRY AGAIN')</script>";
+    } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
 }
 ?>
-     
+
 <?php include "footer.php" ?>
