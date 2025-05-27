@@ -38,7 +38,7 @@
         
         <div class="login-form">  <!-- logo-login -->
             
-            <h2>Register Here</h2>
+            <h2 class="mt-5 pt-5">Register Here</h2>
            <div class="container">
             <div class="row">
             <div class="form-input col-md-6">
